@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>ULPPL Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f6f6f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141416" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ULPPL">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{--bg:#f6f6f4;--card:#fff;--tx:#1a1a1a;--mu:#777;--ac:#2f6df6;--bd:#e2e2de;--ok:#1f9d55;--wa:#e0a100;--bad:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141416;--card:#1e1e22;--tx:#eee;--mu:#999;--ac:#6b9bff;--bd:#2e2e34;--ok:#4cc27f;--wa:#f0b429;--bad:#ff6b6b}}
+:root[data-theme="dark"]{--bg:#141416;--card:#1e1e22;--tx:#eee;--mu:#999;--ac:#6b9bff;--bd:#2e2e34;--ok:#4cc27f;--wa:#f0b429;--bad:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:560px;margin:0 auto;padding:12px 12px 90px}
+.tabs,.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px}
+button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;cursor:pointer;white-space:nowrap}
+button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.chip{font-size:12px;padding:6px 10px;text-align:center}.chip.dn{border-color:var(--ok)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:10px}
+h3{margin:0;font-size:16px}.mu{color:var(--mu);font-size:13px}.hint{color:var(--ok);font-size:13px}
+.big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+.hd{display:flex;justify-content:space-between;gap:8px;cursor:pointer}
+.card.done:not(.open) .body{display:none}.card.done .hd h3{color:var(--ok)}
+.row{display:grid;grid-template-columns:28px 1fr 1fr 62px;gap:8px;align-items:center;margin-top:8px}
+input,select,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:9px;min-width:0}
+.fin{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--bd)}
+.fin button{width:100%;max-width:536px;display:block;margin:0 auto;background:var(--ac);color:#fff;border-color:var(--ac);padding:12px;font-weight:600}
+.pr{border:2px solid var(--wa)}.pr b{color:var(--wa)}
+.rc{flex:1;min-width:70px;text-align:center;font-size:13px}.rc b{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g2 .card{margin:0}
+.sm{font-size:12px;padding:4px 9px;margin-top:6px}summary{cursor:pointer;color:var(--mu);font-size:13px;margin-top:6px}
+input,select,textarea{font-size:16px;min-height:46px}
+button{min-height:44px;touch-action:manipulation}
+button.chip{min-height:40px}.sm{min-height:38px;padding:6px 12px}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
+main{padding-bottom:170px}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:2px;padding:4px 6px calc(4px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd)}
+.nav button{flex:1;min-height:50px;padding:6px 2px;border:0;border-radius:8px;background:none;font-size:13px}
+.nav button.on{background:none;color:var(--ac);font-weight:700}
+.fin{bottom:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:10px;z-index:4}
+</style></head><body><main id="app"></main>
+<script>
+(()=>{
+const P={
+Upper:[["Incline DB press 30°",3,"6-10"],["Chest-supported T-bar row",3,"6-10"],["Lat pulldown",3,"8-12"],["Pec deck",2,"12-15"],["Cable lateral raise",4,"12-20"],["Reverse pec deck",4,"12-20"],["EZ bar curl",4,"8-12"],["Overhead cable triceps extension",4,"10-15"]],
+Lower:[["Hack squat",3,"6-10"],["DB Romanian deadlift",3,"8-10"],["Leg extension",3,"10-15"],["Hamstring curl",3,"10-15"],["Standing calf raise",5,"8-12"],["Cable crunch",3,"10-15"],["DB lateral raise",4,"12-20"]],
+Push:[["Smith incline press 30°",4,"6-10"],["Machine chest press",3,"8-12"],["Machine shoulder press",3,"8-12"],["Low-to-high cable fly",3,"12-15"],["Lean-away cable lateral",3,"12-20"],["DB lateral raise",3,"10-15"],["Rope pressdown",4,"10-15"]],
+Pull:[["Assisted pull-up",4,"6-10"],["Seated cable row (V-grip)",4,"8-12"],["Chest-supported DB row",3,"10-12"],["Cable face pull",3,"12-20"],["Cable lateral raise",4,"12-20"],["Incline DB curl",4,"8-12"],["Cable rope hammer curl",4,"10-15"]],
+Legs:[["Leg press",3,"10-15"],["Smith split squat (per leg)",3,"8-12"],["Smith hip thrust",3,"8-12"],["Hamstring curl",4,"8-12"],["Leg press calf raise",5,"12-20"],["Cable / reverse crunch",3,"10-15"],["Reverse pec deck",3,"15-20"]]};
+const DAYS=Object.keys(P),WD={Upper:"Mon",Lower:"Tue",Push:"Thu",Pull:"Fri",Legs:"Sat"};
+const MUS={Chest:["Upper","Push"],Back:["Upper","Pull"],Shoulders:["Upper","Push","Pull"],Arms:["Upper","Push","Pull"],Legs:["Lower","Legs"]};
+const NAMES=[];
+const $=s=>document.querySelector(s);
+let S={logs:[],draft:{},bw:[],t:{},notes:{},theme:"auto",ms:[],en:{},rpe:"",lib:{},rep:[]};
+try{Object.assign(S,JSON.parse(localStorage.getItem("ulppl")||"{}"))}catch(e){}
+const sv=()=>{S.prog=P;try{localStorage.setItem("ulppl",JSON.stringify(S))}catch(e){}};
+if(S.prog)for(const d in S.prog)P[d]=S.prog[d];
+const refN=()=>{NAMES.length=0;new Set([...DAYS.flatMap(d=>P[d].map(e=>e[0])),...S.logs.flatMap(l=>Object.keys(l.data)),...Object.keys(S.lib)]).forEach(n=>NAMES.push(n))};refN();
+const f1=x=>Math.round(x*10)/10,e1=(w,r)=>w*(1+r/30);
+const vol=a=>a.reduce((t,x)=>t+(x?(+x.w||0)*(+x.r||0):0),0);
+const ok=a=>a.filter(s=>s&&+s.w&&+s.r);
+const bst=a=>ok(a).reduce((b,s)=>!b||e1(+s.w,+s.r)>e1(+b.w,+b.r)?s:b,null);
+const fmt=a=>ok(a).map(s=>s.w+"×"+s.r).join(", ");
+const loc=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4);
+const td=()=>loc().toISOString().slice(0,10);
+const dd=a=>Math.round((Date.parse(td())-Date.parse(a))/864e5);
+const wk=()=>new Date(loc().getTime()-((loc().getUTCDay()+6)%7)*864e5).toISOString().slice(0,10);
+const hx=n=>S.logs.filter(l=>l.data[n]&&ok(l.data[n]).length).map(l=>({d:l.date,a:l.data[n]}));
+const last=n=>{const h=hx(n);return h.length?h[h.length-1].a:null};
+const allBest=n=>hx(n).reduce((b,x)=>{const s=bst(x.a);return s&&(!b||e1(+s.w,+s.r)>e1(+b.w,+b.r))?s:b},null);
+const done=(a,n)=>{for(let i=0;i<n;i++)if(!(a[i]&&+a[i].w&&+a[i].r))return false;return true};
+const wu=w=>{if(!w)return"<div class=mu>Enter a working weight to see warm-ups</div>";const r=x=>Math.round(w*x/2.5)*2.5;return`<div>${r(.5)} × 8<br>${r(.7)} × 5<br>${r(.85)} × 2<br><b>${w} × Working</b></div>`};
+const ch=(v,u)=>{if(v.length<2)return`<div class=mu>Log 2+ entries to see a graph</div>`;const mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1,p=v.map((y,i)=>[i/(v.length-1)*290+5,90-(y-mn)/r*78]);return`<svg viewBox="0 0 300 100" width="100%"><polyline points="${p.map(q=>q.join(",")).join(" ")}" fill="none" stroke="var(--ac)" stroke-width="2.5"/>${p.map(q=>`<circle cx="${q[0]}" cy="${q[1]}" r="3" fill="var(--ac)"/>`).join("")}</svg><div class=mu>${f1(mn)} – ${f1(mx)} ${u}</div>`};
+const fd=s=>{const m=Math.floor(s/60),h=Math.floor(m/60);return(h?h+":":"")+String(m%60).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+let day={1:"Upper",2:"Lower",4:"Push",5:"Pull",6:"Legs"}[loc().getUTCDay()]||"Upper",tab="Train",pex=NAMES[0],flash=[],rt=0,sw=-1,mf="";
+
+function train(){
+ const d=S.draft[day]=S.draft[day]||{};
+ let h=`<div class=chips>${DAYS.map(x=>{const k=S.logs.some(l=>l.day==x&&l.date>=wk());return`<button class="chip ${k?"dn ":""}${x==day?"on":""}" data-day="${x}">${WD[x]} ${x}<br>${k?"✓":"Pending"}</button>`}).join("")}</div>`;
+ h+=`<div class=card><div class=mu>Workout Time</div><div class=big id=tm>00:00</div><div class=hint id=rs></div><button class=sm data-dup=1>Duplicate last ${day} workout</button></div>`;
+ h+=`<div class=card><div class=mu style="margin-bottom:6px">Muscle recovery</div><div class=chips>${Object.entries(MUS).map(([m,ds])=>{const l=S.logs.filter(x=>ds.includes(x.day)).map(x=>x.date).sort().pop();const g=l==null?99:dd(l),s=g<=1?["Fatigued","var(--bad)"]:g==2?["Recovering","var(--wa)"]:["Recovered","var(--ok)"];return`<div class=rc>${m}<b style="color:${s[1]}">${s[0]}</b></div>`}).join("")}</div></div>`;
+ P[day].forEach(([n,sets,rr],i)=>{
+  const l=last(n),dr=d[n]||[],b=allBest(n),dn=done(dr,sets),ww=+(dr[0]&&dr[0].w)||+(l&&l[0]&&l[0].w)||0;
+  const hint=l&&l.length>=sets&&l.every(s=>s&&+s.r>=+rr.split("-")[1])?`<div class=hint>Hit the top of the range last time, go heavier</div>`:"";
+  h+=`<div class="card ex${dn?" done":""}" data-c="${i}"><div class=hd data-tg=1><h3>${n}</h3><span class="mu sum">${dn?"✓ "+fmt(dr)+" · "+vol(dr)+" kg":sets+"×"+rr}</span></div><div class=body>
+  <div class=mu>${l?"Last: "+fmt(l):"No history yet"}</div>
+  ${b?`<div class=mu>Best: ${b.w} × ${b.r} · Est. 1RM <b>${f1(e1(+b.w,+b.r))} kg</b></div>`:""}${hint}
+  ${l?`<button class="sm" data-copy="${i}">Copy last</button>`:""} <button class="sm" data-sw="${i}">Swap</button>${sw==i?swapUI(n):""}${(S.rep.filter(r=>r.to==n).pop()||{}).from?`<div class=mu>↻ replaced ${S.rep.filter(r=>r.to==n).pop().from}</div>`:""}
+  <details><summary>Warm-up</summary><div class=wu>${wu(ww)}</div></details><input class=en data-n="${i}" placeholder="Exercise note (seat height, grip...)" value="${(S.en[n]||"").replace(/"/g,"&quot;")}" style="margin-top:8px">`;
+  for(let s=0;s<sets;s++){const v=dr[s]||{},p=(l&&l[s])||{};
+   h+=`<div class=row><span class=mu>${s+1}</span><input inputmode="decimal" placeholder="${p.w||"kg"}" value="${v.w||""}" data-i="${i}" data-s="${s}" data-f="w"><input inputmode="numeric" placeholder="${p.r||"reps"}" value="${v.r||""}" data-i="${i}" data-s="${s}" data-f="r"><input inputmode="numeric" placeholder="RIR" value="${v.x||""}" data-i="${i}" data-s="${s}" data-f="x"></div>`}
+  h+=`<div class="mu vl" style="margin-top:8px">Volume: ${vol(dr)} kg</div></div></div>`});
+ return h+`<div class=card><div class=mu>Session notes</div><textarea id=nt rows=3 placeholder="Sleep, shoulder, what to increase next week...">${S.notes[day]||""}</textarea><input id=rpe inputmode="numeric" placeholder="Session energy / RPE (1-10)" value="${S.rpe||""}" style="margin-top:8px"></div><div class=fin><button data-fin=1>Finish ${day} session</button></div>`}
+
+function hist(){
+ const bw=S.bw,lb=bw.length?bw[bw.length-1]:null;
+ let h=flash.map(p=>`<div class="card pr"><b>NEW PR</b><h3>${p.n}</h3>${p.w} × ${p.r}</div>`).join("");
+ h+=`<div class=card><div class=mu>Morning Weight</div><div class=big>${lb?lb.w+" kg":"–"}</div><div class=row style="grid-template-columns:1fr auto"><input id=bwi inputmode="decimal" placeholder="e.g. 66.2"><button data-bw=1>Log today</button></div>${ch(bw.map(x=>x.w),"kg")}</div>`;
+ const lm=S.ms[S.ms.length-1];h+=`<div class=card><div class=mu>Body measurements (cm)${lm?" · last "+lm.date:""}</div><div class=g2 style="margin-top:6px">${["waist","chest","arms","thighs","shoulders"].map(k=>`<input id=m_${k} inputmode="decimal" placeholder="${k}${lm&&lm[k]?" ("+lm[k]+")":""}">`).join("")}</div><button class=sm data-ms=1>Log measurements</button>${["waist","chest","arms","thighs","shoulders"].map(k=>{const v=S.ms.filter(x=>x[k]).map(x=>x[k]);return v.length>1?`<div class=mu style="margin-top:8px">${k}</div>${ch(v,"cm")}`:""}).join("")}</div>`;
+ h+=`<div class=chips><button data-csv=1>Copy CSV</button><button data-exp=1>Backup data</button><button data-imp=1>Restore data</button></div>`;
+ if(!S.logs.length)return h+`<p class=mu>No sessions logged yet.</p>`;
+ return h+S.logs.map((l,i)=>`<div class=card><button class="sm" style="float:right;margin:0" data-del="${i}">Delete</button><h3>${l.day}</h3><div class=mu>${l.date}${l.dur?" · "+l.dur+" min":""}${l.rpe?" · energy "+l.rpe+"/10":""}</div>${(l.prs||[]).map(p=>`<div class=hint>🏆 PR: ${p.n} ${p.w} × ${p.r}</div>`).join("")}${Object.entries(l.data).map(([n,a])=>`<div style="margin-top:6px"><b>${n}</b><div class=mu>${fmt(a)} = ${vol(a)} kg</div></div>`).join("")}${l.notes?`<div style="margin-top:8px;white-space:pre-wrap">📝 ${l.notes.replace(/</g,"&lt;")}</div>`:""}</div>`).reverse().join("")}
+
+const chips=q=>NAMES.filter(n=>n.toLowerCase().includes(q.toLowerCase())&&(!mf||MM[n]==mf)).map(n=>`<button class="chip ${n==pex?"on":""}" data-pex="${n}">${n}</button>`).join("");
+function prog(){
+ const h=hx(pex),b=allBest(pex),xs=h.filter(z=>z.d>=wk()).flatMap(z=>z.a).map(q=>parseFloat(q&&q.x)).filter(v=>!isNaN(v));
+ return`<div class=chips>${["",...Object.keys(TG)].map(m=>`<button class="chip ${m==mf?"on":""}" data-mf="${m}">${m||"All"}</button>`).join("")}</div><input id=sq placeholder="Search exercises..."><div class=chips id=chips style="flex-wrap:wrap;margin-top:8px">${chips("")}</div><h3>${pex}</h3>
+ ${b?`<div class=card><div class=mu>Best:</div><b>${b.w} × ${b.r}</b><div class=mu style="margin-top:6px">Estimated 1RM</div><b>${f1(e1(+b.w,+b.r))} kg</b></div>`:""}
+ ${xs.length?`<div class=card><div class=mu>Avg RIR this week</div><b>${f1(xs.reduce((p,q)=>p+q,0)/xs.length)}</b></div>`:""}
+ <div class=card><div class=mu>Total volume per session</div>${ch(h.map(x=>vol(x.a)),"kg")}</div>
+ <div class=card><div class=mu>Estimated 1RM</div>${ch(h.map(x=>{const s=bst(x.a);return f1(e1(+s.w,+s.r))}),"kg")}</div>
+ ${h.slice().reverse().map(x=>`<div class=card><div class=mu>${x.d}</div>${ok(x.a).map(s=>s.w+"×"+s.r).join("<br>")}<div style="margin-top:4px"><b>= ${vol(x.a)} kg</b></div></div>`).join("")}`}
+
+function stats(){
+ const L=S.logs,tot=L.reduce((t,l)=>t+Object.values(l.data).reduce((u,a)=>u+vol(a),0),0),du=L.filter(l=>l.dur);
+ let st=0;const ds=L.map(l=>l.date).sort().reverse();
+ if(ds.length&&dd(ds[0])<=3){st=1;for(let i=1;i<ds.length&&(Date.parse(ds[i-1])-Date.parse(ds[i]))/864e5<=3;i++)st++}
+ const ml=[];NAMES.forEach(n=>{const h=hx(n);if(h.length<2)return;const mx=x=>Math.max(...ok(x.a).map(s=>+s.w)),g=mx(h[h.length-1])-mx(h[0]);ml.push({n,g})});ml.sort((a,b)=>b.g-a.g);
+ const c=(a,b)=>`<div class=card><div class=mu>${a}</div><div class=big style="font-size:22px">${b}</div></div>`;
+ return`<div class=g2>${c("Total Sessions",L.length)}${c("Current Streak",st+" workouts")}${c("Total Weight Lifted",Math.round(tot).toLocaleString()+" kg")}${c("Average Workout",du.length?Math.round(du.reduce((t,l)=>t+l.dur,0)/du.length)+" min":"–")}</div>${ml.length?`<div class=card style="margin-top:10px"><div class=mu>Top 5 Most Improved</div>${ml.slice(0,5).map(x=>`<div>${x.n} <b>${x.g>=0?"+":""}${x.g} kg</b></div>`).join("")}</div>`:""}${extra()}`}
+
+const MM={},TG={Chest:[14,18],Back:[16,20],"Side delts":[18,22],"Rear delts":[10,14],Biceps:[12,16],Triceps:[12,16],Quads:[12,16],Hamstrings:[10,14],Glutes:[6,10],Calves:[10,14],Abs:[6,10]};
+Object.entries({Chest:"Incline DB press 30°|Smith incline press 30°|Machine chest press|Pec deck|Low-to-high cable fly",Back:"Chest-supported T-bar row|Lat pulldown|Assisted pull-up|Seated cable row (V-grip)|Chest-supported DB row","Side delts":"Cable lateral raise|DB lateral raise|Lean-away cable lateral","Rear delts":"Reverse pec deck|Cable face pull",Biceps:"EZ bar curl|Incline DB curl|Cable rope hammer curl",Triceps:"Overhead cable triceps extension|Rope pressdown",Quads:"Hack squat|Leg extension|Leg press|Smith split squat (per leg)",Hamstrings:"DB Romanian deadlift|Hamstring curl",Glutes:"Smith hip thrust",Calves:"Standing calf raise|Leg press calf raise",Abs:"Cable crunch|Cable / reverse crunch"}).forEach(([m,q])=>q.split("|").forEach(n=>MM[n]=m));
+Object.entries(S.lib).forEach(([n,m])=>MM[n]=m);
+const ALT={Chest:["Flat DB press","Incline Smith press","Incline DB fly","Cable fly"],Back:["Single-arm cable row","Incline-bench DB row","Neutral-grip lat pulldown","T-bar row"],"Side delts":["Seated DB lateral raise","Cable Y-raise"],"Rear delts":["Cable reverse fly","Rear-delt DB fly"],Biceps:["DB curl","Preacher EZ curl","Cable curl"],Triceps:["DB overhead extension","Bar pushdown","EZ skull crusher"],Quads:["Smith squat","Walking lunge","Sissy squat"],Hamstrings:["Lying leg curl","Seated leg curl","Back extension"],Glutes:["DB hip thrust","Cable pull-through","Glute bridge"],Calves:["Seated calf raise","Smith calf raise"],Abs:["Reverse crunch","Hanging knee raise","Decline crunch"]};
+function prPage(){const all=S.logs.flatMap(l=>(l.prs||[]).map(()=>l.date)),mo=td().slice(0,7);return`<div class=card>PRs this week: <b>${all.filter(d=>d>=wk()).length}</b> · this month: <b>${all.filter(d=>d.slice(0,7)==mo).length}</b></div>`+NAMES.map(n=>{const h=hx(n);let b=null,d="";h.forEach(x=>{const s=bst(x.a);if(s&&(!b||e1(+s.w,+s.r)>e1(+b.w,+b.r))){b=s;d=x.d}});return b&&{n,b,d,c:h.length}}).filter(Boolean).sort((a,b)=>e1(+b.b.w,+b.b.r)-e1(+a.b.w,+a.b.r)).map(x=>`<div class=card><h3>${x.n}</h3>🏆 ${x.b.w} × ${x.b.r} · est. 1RM <b>${f1(e1(+x.b.w,+x.b.r))} kg</b><div class=mu>${x.d} (${dd(x.d)}d ago) · trained ${x.c}×</div></div>`).join("")||`<p class=mu>No PRs yet.</p>`}
+function extra(){
+ const w0=Date.parse(wk()),cnt=k=>S.logs.filter(l=>{const t=Date.parse(l.date);return t>=w0-k*6048e5&&t<w0-k*6048e5+6048e5}).length;
+ const ad=Math.round([0,1,2,3].reduce((t,k)=>t+Math.min(cnt(k),5),0)/20*100);
+ const ws={};S.logs.filter(l=>l.date>=wk()).forEach(l=>Object.entries(l.data).forEach(([n,a])=>{if(MM[n])ws[MM[n]]=(ws[MM[n]]||0)+ok(a).length}));
+ const pl=NAMES.filter(n=>{const e=hx(n).map(x=>{const s=bst(x.a);return s?e1(+s.w,+s.r):0});return e.length>=4&&Math.max(...e.slice(-3))<=Math.max(...e.slice(0,-3))});
+ const wi=[...new Set(S.logs.map(l=>Math.floor(Date.parse(l.date)/6048e5)))].sort((a,b)=>b-a);let run=0;while(run<wi.length&&wi[run]==wi[0]-run)run++;
+ const dl=pl.length>=3||run>=5,rp=S.logs.flatMap(l=>(l.prs||[]).map(p=>({...p,d:l.date}))).slice(-5).reverse();
+ const Y=loc().getUTCFullYear(),M=loc().getUTCMonth(),dim=new Date(Y,M+1,0).getDate(),off=(new Date(Y,M,1).getDay()+6)%7,ds=new Set(S.logs.map(l=>l.date));
+ let cal="";for(let i=0;i<off;i++)cal+="<div></div>";for(let d=1;d<=dim;d++){const k=`${Y}-${String(M+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;cal+=`<div style="padding:5px 0;border-radius:6px;${ds.has(k)?"background:var(--ok);color:#fff":""}">${d}</div>`}
+ const cd=(t,b)=>`<div class=card style="margin-top:10px"><div class=mu style="margin-bottom:6px">${t}</div>${b}</div>`;
+ const st8=new Date(Date.parse(td())-56*864e5).toISOString().slice(0,10),L8=S.logs.filter(l=>l.date>=st8),b8=S.bw.filter(x=>x.date>=st8),m8=S.ms.filter(x=>x.date>=st8);
+ const wks=Math.max(1,Math.min(8,Math.ceil((Date.parse(td())-Date.parse(S.logs[0]?S.logs[0].date:td()))/6048e5))),sets={},ch8=[];
+ L8.forEach(l=>Object.entries(l.data).forEach(([n,a])=>{if(MM[n])sets[MM[n]]=(sets[MM[n]]||0)+ok(a).length}));
+ NAMES.forEach(n=>{const e=hx(n).filter(z=>z.d>=st8).map(z=>{const s=bst(z.a);return s?e1(+s.w,+s.r):0}).filter(Boolean);if(e.length>1)ch8.push({n,g:e[e.length-1]-e[0]})});ch8.sort((a,b)=>b.g-a.g);
+ const top3=NAMES.map(n=>{const s=allBest(n);return s&&{n,v:e1(+s.w,+s.r)}}).filter(Boolean).sort((a,b)=>b.v-a.v).slice(0,3);
+ const dif=(a,k)=>{const v=a.filter(x=>x[k]).map(x=>x[k]);return v.length>1?f1(v[v.length-1]-v[0]):null};
+ const meso=`<div>Workouts: <b>${L8.length}</b> · Adherence: <b>${Math.round(L8.length/(wks*5)*100)}%</b></div><div>Bodyweight: <b>${dif(b8,"w")==null?"–":dif(b8,"w")+" kg"}</b></div><div>Measurements: ${["waist","chest","arms","thighs","shoulders"].map(k=>dif(m8,k)==null?"":k+" "+dif(m8,k)+" cm").filter(Boolean).join(", ")||"–"}</div><div>PRs: <b>${L8.reduce((t,l)=>t+(l.prs||[]).length,0)}</b></div><div>Strongest: ${top3.map(x=>x.n+" "+f1(x.v)).join(", ")||"–"}</div><div>Weakest progress: ${ch8.slice(-3).reverse().map(x=>x.n+" "+(x.g>=0?"+":"")+f1(x.g)).join(", ")||"–"}</div><div class=mu style="margin-top:6px">Avg weekly sets: ${Object.entries(sets).map(([m,v])=>m+" "+f1(v/wks)).join(" · ")||"–"}</div>`;
+ const IX={Mon:1,Tue:2,Thu:4,Fri:5,Sat:6},tI=loc().getUTCDay()||7,missed=DAYS.filter(d=>IX[WD[d]]<tI&&!S.logs.some(l=>l.day==d&&l.date>=wk())),rv=S.logs.map(l=>+l.rpe).filter(Boolean);
+ return cd("Mesocycle summary (last 8 weeks)",meso)+cd("This week / RPE",`Missed: <b>${missed.length?missed.join(", "):"none"}</b><br>Avg session energy/RPE: <b>${rv.length?f1(rv.reduce((p,q)=>p+q,0)/rv.length):"–"}</b>`)+cd("Adherence (last 4 weeks, 5 planned per week)",`<div class=big style="font-size:22px">${ad}%</div><div class=mu>This week: ${cnt(0)}/5 sessions</div>`)
+ +cd("Weekly sets per muscle (this week)",Object.entries(TG).map(([m,t])=>{const s=ws[m]||0;return`<div style="margin-top:6px">${m}: <b>${s}</b> / ${t[0]}-${t[1]}<div style="height:6px;border-radius:3px;background:var(--bd)"><div style="height:6px;border-radius:3px;width:${Math.min(100,s/t[1]*100)}%;background:${s>=t[0]?"var(--ok)":"var(--ac)"}"></div></div></div>`}).join(""))
+ +cd("Plateau check",pl.length?pl.join(", ")+" · no 1RM gain in the last 3 sessions":"No plateaus detected")
+ +cd("Deload",dl?"Consider a deload week. "+(run>=5?run+" weeks of training in a row. ":"")+(pl.length>=3?pl.length+" lifts stalled.":""):"Not needed yet")
+ +cd("Recent PRs",rp.length?rp.map(p=>`<div>${p.n} <b>${p.w} × ${p.r}</b> <span class=mu>${p.d}</span></div>`).join(""):"None yet")
+ +cd("Calendar",`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:12px">${cal}</div>`)}
+const swapUI=n=>{const m=MM[n]||"",o=[...new Set([...NAMES.filter(x=>MM[x]==m),...(ALT[m]||[])])].filter(x=>x!=n&&!P[day].some(e=>e[0]==x));return`<div style="margin-top:8px"><div class=mu>Swap with (old history stays under the old name):</div><div class=chips style="flex-wrap:wrap;margin-top:6px">${o.map(x=>`<button class=chip data-pick="${x}">${x}</button>`).join("")}</div><input id=cx placeholder="Or type a custom exercise" style="margin-top:6px"><button class=sm data-cx=1>Use custom</button></div>`};
+const doSwap=nm=>{const o=P[day][sw][0],m=MM[o]||"";if(!MM[nm]&&m){S.lib[nm]=m;MM[nm]=m}delete S.draft[day][o];P[day][sw]=[nm,P[day][sw][1],P[day][sw][2]];S.rep.push({date:td(),day,from:o,to:nm});sw=-1;refN();sv();render()};
+function render(){
+ const y=scrollY;
+ $("#app").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:20px">${tab}</b><button class=sm data-th=1>◐ ${S.theme}</button></div>`+({Train:train,History:hist,Progress:prog,PRs:prPage,Stats:stats})[tab]()+`<nav class=nav>${["Train","History","Progress","PRs","Stats"].map(t=>`<button class="${t==tab?"on":""}" data-tab="${t}">${t}</button>`).join("")}</nav>`;
+ scrollTo(0,y);tick()}
+function tick(){const e=$("#tm");if(e)e.textContent=S.t[day]?fd(Math.floor((Date.now()-S.t[day])/1e3)):"00:00";const r=$("#rs");if(r){const q=Math.ceil((rt-Date.now())/1e3);r.textContent=q>0?"Rest: "+fd(q):""}}
+function theme(){const r=document.documentElement;S.theme=="auto"?r.removeAttribute("data-theme"):r.setAttribute("data-theme",S.theme)}
+function fin(){
+ const d=S.draft[day]||{},data={},prs=[];
+ for(const[n,a]of Object.entries(d)){if(!ok(a).length)continue;data[n]=Array.from(a,s=>s||{w:"",r:""});const nb=bst(a),pb=allBest(n);if(pb&&nb&&e1(+nb.w,+nb.r)>e1(+pb.w,+pb.r)+1e-9)prs.push({n,w:nb.w,r:nb.r})}
+ if(!Object.keys(data).length)return alert("Log at least one set first.");
+ const st=S.t[day];
+ S.logs.push({day,date:td(),dur:st?Math.round((Date.now()-st)/6e4):0,notes:S.notes[day]||"",rpe:S.rpe||"",prs,data});
+ S.draft[day]={};delete S.t[day];S.notes[day]="";S.rpe="";flash=prs;sv();tab="History";render();scrollTo(0,0)}
+const csv=()=>{const r=[["date","day","exercise","set","weight","reps","volume","duration_min"]];S.logs.forEach(l=>Object.entries(l.data).forEach(([n,a])=>a.forEach((s,i)=>{if(s&&+s.w)r.push([l.date,l.day,'"'+n+'"',i+1,s.w,s.r,s.w*s.r,l.dur||""])})));return r.map(x=>x.join(",")).join("\n")};
+
+document.addEventListener("click",e=>{
+ const t=e.target,g=t.closest("[data-tg]");let c;
+ if(g){g.parentElement.classList.toggle("open");return}
+ if(c=t.dataset.tab){tab=c;flash=[];render();scrollTo(0,0)}
+ else if(c=t.dataset.day){day=c;render()}
+ else if(t.dataset.th){S.theme={auto:"dark",dark:"light",light:"auto"}[S.theme];theme();sv();render()}
+ else if(c=t.dataset.pex){pex=c;render()}
+ else if(c=t.dataset.copy){const n=P[day][+c][0];S.draft[day][n]=last(n).map(s=>({w:s&&s.w,r:s&&s.r}));if(!S.t[day])S.t[day]=Date.now();sv();render()}
+ else if(t.dataset.fin)fin();
+ else if(t.dataset.bw){const v=parseFloat($("#bwi").value);if(!v)return;S.bw=S.bw.filter(x=>x.date!=td());S.bw.push({date:td(),w:v});S.bw.sort((a,b)=>a.date<b.date?-1:1);sv();render()}
+ else if(c=t.dataset.sw){sw=sw==+c?-1:+c;render()}
+ else if(c=t.dataset.pick)doSwap(c);
+ else if(t.dataset.cx){const v=$("#cx").value.trim();if(v)doSwap(v)}
+ else if(t.dataset.exp){const j=JSON.stringify(S);(navigator.clipboard?navigator.clipboard.writeText(j):Promise.reject()).then(()=>alert("Backup copied. Paste it somewhere safe (Notes, email to yourself).")).catch(()=>prompt("Copy this backup:",j))}
+ else if(t.dataset.imp){const j=prompt("Paste your backup:");if(j){try{const o=JSON.parse(j);if(!o.logs)throw 0;if(!confirm("Replace current data with this backup?"))return;S=Object.assign({logs:[],draft:{},bw:[],t:{},notes:{},theme:"auto",ms:[],en:{},rpe:"",lib:{},rep:[]},o);if(S.prog)for(const d in S.prog)P[d]=S.prog[d];Object.entries(S.lib).forEach(([n,m])=>MM[n]=m);refN();sv();theme();render()}catch(x){alert("That does not look like a valid backup")}}}
+ else if("mf" in t.dataset){mf=t.dataset.mf;render()}
+ else if(t.dataset.dup){const l=[...S.logs].reverse().find(x=>x.day==day);if(!l)return alert("No previous "+day+" session yet");P[day].forEach(([n])=>{if(l.data[n])S.draft[day][n]=l.data[n].map(z=>({w:z&&z.w,r:z&&z.r,x:z&&z.x}))});if(!S.t[day])S.t[day]=Date.now();sv();render()}
+ else if(t.dataset.ms){const o={date:td()};["waist","chest","arms","thighs","shoulders"].forEach(k=>{o[k]=parseFloat($("#m_"+k).value)||null});S.ms=S.ms.filter(x=>x.date!=o.date);S.ms.push(o);sv();render()}
+ else if(t.dataset.csv){const j=csv();(navigator.clipboard?navigator.clipboard.writeText(j):Promise.reject()).then(()=>alert("CSV copied. Paste it into Excel or Sheets.")).catch(()=>prompt("Copy this CSV:",j))}
+ else if(c=t.dataset.del){if(confirm("Delete this session?")){S.logs.splice(+c,1);sv();render()}}});
+document.addEventListener("input",e=>{
+ const t=e.target,c=t.closest(".ex");
+ if(t.dataset.f){const n=P[day][+t.dataset.i][0],a=S.draft[day][n]=S.draft[day][n]||[];
+  a[+t.dataset.s]=Object.assign({w:"",r:""},a[+t.dataset.s],{[t.dataset.f]:t.value});
+  if(!S.t[day])S.t[day]=Date.now();
+  c.querySelector(".vl").textContent="Volume: "+vol(a)+" kg";
+  if(t.dataset.s=="0"&&t.dataset.f=="w")c.querySelector(".wu").innerHTML=wu(+t.value);
+  sv()}
+ else if(t.classList.contains("en")){S.en[P[day][+t.dataset.n][0]]=t.value;sv()}
+ else if(t.id=="rpe"){S.rpe=t.value;sv()}
+ else if(t.id=="nt"){S.notes[day]=t.value;sv()}
+ else if(t.id=="sq")$("#chips").innerHTML=chips(t.value)});
+document.addEventListener("change",e=>{
+ const t=e.target,c=t.closest(".ex");
+ if(c&&t.dataset.f){const [n,sets,rr]=P[day][+c.dataset.c],a=S.draft[day][n]||[],dn=done(a,sets);
+  c.classList.toggle("done",dn);if(t.dataset.f=="r"&&t.value)rt=Date.now()+(+rr.split("-")[1]<=10?150:90)*1e3;c.querySelector(".sum").textContent=dn?"✓ "+fmt(a)+" · "+vol(a)+" kg":sets+"×"+rr;if(dn)c.classList.remove("open")}});
+document.addEventListener("keydown",e=>{if(e.key=="Enter"&&e.target.dataset&&e.target.dataset.f){e.preventDefault();const a=[...document.querySelectorAll("input[data-f]")],i=a.indexOf(e.target);if(a[i+1])a[i+1].focus()}});
+theme();render();setInterval(tick,1000);
+})();
+</script><script>if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script></body></html>
